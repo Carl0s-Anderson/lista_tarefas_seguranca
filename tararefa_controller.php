@@ -4,7 +4,7 @@ require "tarefa_service.php";
 require "conexao.php";
 $acao = isset($_GET['acao']) ? $_GET['acao'] : $acao;
 
-if('$acao' == 'inserir') {
+if($acao == 'inserir') {
     $tarefa = new tarefa();
     $tarefa->__set('tarefa', $_POST['tarefa']);
 
@@ -25,6 +25,43 @@ if('$acao' == 'inserir') {
     $conexao = new conexao();
   $tarefaService = new Tarefa_service($conexao, $tarefa);
     if ($tarefaService->atualizar()) {
-        header('Location: index.php?sucesso=1');
+        if (isset($_GET['pag']) && $_GET['pag'] == 'index') {
+            header('Location: index.php?sucesso=1');
+        } else {
+            header('Location: todas_tarefas.php?sucesso=1');
+        }
+     
     }
-} 
+} elseif ($acao == 'excluir') {
+    $tarefa = new tarefa();
+    $tarefa->__set('id', $_GET['id']);
+
+    $conexao = new conexao();
+    $tarefaService = new Tarefa_service($conexao, $tarefa);
+    $tarefaService->excluir();
+
+     if (isset($_GET['pag']) && $_GET['pag'] == 'index') {
+            header('Location: index.php?sucesso=1');
+        } else {
+            header('Location: todas_tarefas.php?sucesso=1');
+        }
+} elseif ($acao == 'mudarStatus') {
+    $tarefa = new tarefa();
+    $tarefa->__set('id', $_GET['id']);
+    $tarefa->__set('id_status', 2); // 2 para "realizada"
+
+    $conexao = new conexao();
+    $tarefaService = new Tarefa_service($conexao, $tarefa);
+    $tarefaService->marcarRealizada();
+      if (isset($_GET['pag']) && $_GET['pag'] == 'index') {
+            header('Location: index.php?sucesso=1');
+        } else {
+            header('Location: todas_tarefas.php?sucesso=1');
+        }
+} elseif ($acao == 'recuperarTarefasPendentes') {
+    $tarefa = new tarefa();
+    $tarefa->__set('id_status', 1); // 1 para "pendente"
+    $conexao = new conexao();
+    $tarefaService = new Tarefa_service($conexao, $tarefa);
+    $tarefasPendentes = $tarefaService->recuperarTarefasPendentes();
+}

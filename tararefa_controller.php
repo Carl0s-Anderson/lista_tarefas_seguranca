@@ -45,23 +45,33 @@ if($acao == 'inserir') {
         } else {
             header('Location: todas_tarefas.php?sucesso=1');
         }
-} elseif ($acao == 'mudarStatus') {
+}  elseif ($acao == 'mudarStatus') {
     $tarefa = new tarefa();
     $tarefa->__set('id', $_GET['id']);
-    $tarefa->__set('id_status', 2); // 2 para "realizada"
+    $tarefa->__set('id_status', 2);
 
     $conexao = new conexao();
     $tarefaService = new Tarefa_service($conexao, $tarefa);
     $tarefaService->marcarRealizada();
-      if (isset($_GET['pag']) && $_GET['pag'] == 'index') {
-            header('Location: index.php?sucesso=1');
-        } else {
-            header('Location: todas_tarefas.php?sucesso=1');
-        }
+
+  
+    if(isset($_GET['ajax']) && $_GET['ajax'] == 'true') {
+        http_response_code(200);
+        exit(); 
+    }
+
+    // Lógica antiga de fallback (redirecionamento)
+    if (isset($_GET['pag']) && $_GET['pag'] == 'index') {
+        header('Location: index.php?sucesso=1');
+    } else {
+        header('Location: todas_tarefas.php?sucesso=1');
+    }
 } elseif ($acao == 'recuperarTarefasPendentes') {
     $tarefa = new tarefa();
-    $tarefa->__set('id_status', 1); // 1 para "pendente"
+    $tarefa->__set('id_status', 1); 
     $conexao = new conexao();
     $tarefaService = new Tarefa_service($conexao, $tarefa);
-    $tarefasPendentes = $tarefaService->recuperarTarefasPendentes();
+    
+    // Mude de $tarefasPendentes para $tarefas
+    $tarefas = $tarefaService->recuperarTarefasPendentes(); 
 }
